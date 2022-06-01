@@ -1,0 +1,5 @@
+Traits:
+- No backpropagation = no reward (sort of)
+
+Issues / Problems:
+- If there is an inlet in the course and the bot gets stuck in there, the cars may not evolve after and get stuck in the local point, rather than completing the course.
