@@ -16,37 +16,37 @@ def sigmoid(x):
 
 tracks = {
     "default": {
-        "img": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/track_default.png",
+        "img": "imgs/track_default.png",
         "pos": [850, 820],
         "border": (255, 255, 255, 255),
         "finish": (255, 255, 0, 255)
     },
     "difficult": {
-        "img": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/track_difficult.png",
+        "img": "imgs/track_difficult.png",
         "pos": [850, 820],
         "border": (255, 255, 255, 255),
         "finish": (255, 255, 0, 255)
     },
     "lake": {
-        "img": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/track_lake.png",
+        "img": "imgs/track_lake.png",
         "pos": [850, 820],
         "border": (255, 255, 255, 255),
         "finish": (255, 255, 0, 255)
     },
     "lake2": {
-        "img": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/track_lake2.png",
+        "img": "imgs/track_lake2.png",
         "pos": [850, 820],
         "border": (255, 255, 255, 255),
         "finish": (255, 255, 0, 255)
     },
     "training": {
-        "img": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/track_training.png",
+        "img": "imgs/track_training.png",
         "pos": [850, 820],
         "border": (255, 255, 255, 255),
         "finish": (255, 255, 0, 255)
     },
     "training2": {
-        "img": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/track_training2.png",
+        "img": "imgs/track_training2.png",
         "pos": [405, 400],
         "border": (255, 255, 255, 255),
         "finish": (255, 255, 0, 255)
@@ -54,9 +54,9 @@ tracks = {
 }
 
 car_colors = {
-    "red": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/car_red.png",
-    "green": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/car_green.png",
-    "blue": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/car_blue.png",
+    "red": "imgs/car_red.png",
+    "green": "imgs/car_green.png",
+    "blue": "imgs/car_blue.png",
 }
 
 def car_color(age):
@@ -80,9 +80,9 @@ FPS = 60
 CAR_SIZE_X = 60
 CAR_SIZE_Y = 30
 
-font1 = pygame.font.Font("C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/Font/Unique.ttf", 100)
-font2 = pygame.font.Font("C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/Font/Unique.ttf", 50)
-font3 = pygame.font.Font("C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/Font/Unique.ttf", 30)
+font1 = pygame.font.Font("Font/Unique.ttf", 100)
+font2 = pygame.font.Font("Font/Unique.ttf", 50)
+font3 = pygame.font.Font("Font/Unique.ttf", 30)
 
 A_USEFUL_ANGLE = math.degrees(math.atan(CAR_SIZE_Y / CAR_SIZE_X))
 BORDER_COLOR = tracks[chosen_track]["border"]
