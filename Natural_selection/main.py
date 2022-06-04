@@ -16,41 +16,47 @@ def sigmoid(x):
 
 tracks = {
     "default": {
-        "img": "imgs/track_default.png",
+        "img": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/track_default.png",
         "pos": [850, 820],
         "border": (255, 255, 255, 255),
         "finish": (255, 255, 0, 255)
     },
     "difficult": {
-        "img": "imgs/track_difficult.png",
+        "img": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/track_difficult.png",
         "pos": [850, 820],
         "border": (255, 255, 255, 255),
         "finish": (255, 255, 0, 255)
     },
     "lake": {
-        "img": "imgs/track_lake.png",
+        "img": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/track_lake.png",
         "pos": [850, 820],
         "border": (255, 255, 255, 255),
         "finish": (255, 255, 0, 255)
     },
     "lake2": {
-        "img": "imgs/track_lake2.png",
+        "img": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/track_lake2.png",
         "pos": [850, 820],
         "border": (255, 255, 255, 255),
         "finish": (255, 255, 0, 255)
     },
     "training": {
-        "img": "imgs/track_training.png",
+        "img": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/track_training.png",
         "pos": [850, 820],
+        "border": (255, 255, 255, 255),
+        "finish": (255, 255, 0, 255)
+    },
+    "training2": {
+        "img": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/track_training2.png",
+        "pos": [405, 400],
         "border": (255, 255, 255, 255),
         "finish": (255, 255, 0, 255)
     },
 }
 
 car_colors = {
-    "red": "imgs/car_red.png",
-    "green": "imgs/car_green.png",
-    "blue": "imgs/car_blue.png",
+    "red": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/car_red.png",
+    "green": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/car_green.png",
+    "blue": "C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/imgs/car_blue.png",
 }
 
 def car_color(age):
@@ -74,9 +80,9 @@ FPS = 60
 CAR_SIZE_X = 60
 CAR_SIZE_Y = 30
 
-font1 = pygame.font.Font("Font/Unique.ttf", 100)
-font2 = pygame.font.Font("Font/Unique.ttf", 50)
-font3 = pygame.font.Font("Font/Unique.ttf", 30)
+font1 = pygame.font.Font("C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/Font/Unique.ttf", 100)
+font2 = pygame.font.Font("C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/Font/Unique.ttf", 50)
+font3 = pygame.font.Font("C:/Users/henry/Coding/Python/Self Driving Car/Self-Driving-Car-main/Font/Unique.ttf", 30)
 
 A_USEFUL_ANGLE = math.degrees(math.atan(CAR_SIZE_Y / CAR_SIZE_X))
 BORDER_COLOR = tracks[chosen_track]["border"]
@@ -112,7 +118,7 @@ class Car:
         self.command = 0
         self.weights = ()
         self.parent_weights = parent_weights
-        self.layer = [7, 7, 5]
+        self.layer = [7, 6, 5]
         self.initialize_weights()
 
         # img
@@ -263,7 +269,7 @@ class Car:
 
     def return_distance(self):
         if self.finish:
-            return -1
+            return float('inf')
         else:
             return self.distance
 
@@ -346,7 +352,7 @@ class Car:
         self.draw(win)
 
 
-def update(win, imgs, gen, age_list):
+def update(win, imgs, gen, age_list, car_data):
     for img, pos in imgs:
         win.blit(img, pos)
     text = font1.render(f"Gen #: {gen}", True, (0, 0, 0))
@@ -355,94 +361,69 @@ def update(win, imgs, gen, age_list):
     ages = []
     for i in range(len(age_list)):
         ages.append(font3.render(f"{i+1}: {age_list[i][0]}, {age_list[i][1]}", True, (0, 0, 0)))
+    ranking = []
+    for i in range(len(car_data)):
+        dist = car_data[i][0]
+        if dist == float('inf'):
+            dist = 'finish'
+        else:
+            dist = int(car_data[i][0])
+        ranking.append(font2.render(f"{i+1}: {car_data[i][1].return_name()}, {dist}", True, (0, 0, 0)))
     win.blit(text, (700, 20))
     win.blit(tsf, (20, 900))
     win.blit(age_title, (1300, 10))
     for i, p in enumerate(ages):
         win.blit(p, (1200 + 400* (i // 5), 70+30*(i%5)))
+    for i, e in enumerate(ranking):
+        win.blit(e, (20, 80 + 60*(i)))
 
 
 def create_offsprings(cars, car_dist, cars_time, mr, num_survive):
     offsprings = []
-    num_survived = 0
     total_cars = len(cars)
-    passed = np.where(car_dist == -1)[0].tolist()
-    all_names = []
+    only_dist = np.array([data[0] for data in car_dist])
+    passed = np.where(only_dist == float('inf'))[0].tolist()
+    dead_names = []
     for car in cars:
-        all_names.append(car.return_name())
-    surviving = []
+        dead_names.append(car.return_name())
 
     # no cars has finished
     if len(passed) == 0:
-        while num_survived < num_survive:
-            fastest = max(car_dist)
-            fast_idx = np.where(car_dist == fastest)[0].tolist()
-            for i in fast_idx:
-                offsprings.append(cars[i])
-                num_survived += 1
-                surviving.append(cars[i].return_name())
-                if num_survived == num_survive:
-                    break
-            fast_idx.reverse()
-            for idx in fast_idx:
-                cars.pop(idx)
-            cars_time = np.delete(car_time, fast_idx)
-            car_dist = np.delete(car_dist, fast_idx)
+        sorted_car_dist = sorted(car_dist, key=lambda x: x[0], reverse=True)
+        for i in range(num_survive):
+            offsprings.append(sorted_car_dist[i][1])
 
-    # <= num_survive cars finished
-    if len(passed) <= num_survive:
-        for i in passed:
-            offsprings.append(cars[i])
-            surviving.append(cars[i].return_name())
-            cars.pop(i)
-            num_survived += 1
-            cars_time = np.delete(car_time, i)
-            car_dist = np.delete(car_dist, i)
+    elif len(passed) <= num_survive:
+        passed_cars = [data[1] for ind, data in enumerate(car_dist) if ind in passed]
+        offsprings.extend(passed_cars)
+        sorted_car_dist = sorted(car_dist, key=lambda x: x[0], reverse=True)
 
-        while num_survived < num_survive:
-            fastest = min(car_time)
-            fast_idx = np.where(car_time == fastest)[0].tolist()
-            for i in fast_idx:
-                offsprings.append(cars[i])
-                num_survived += 1
-                surviving.append(cars[i].return_name())
-                if num_survived == num_survive:
-                    break
-            for idx in fast_idx:
-                cars.pop(idx)
-            cars_time = np.delete(car_time, fast_idx)
-            car_dist = np.delete(car_dist, fast_idx)
+        i=0
+        while len(offsprings) < survive:
+            car_check = sorted_car_dist[i][1]
+            if car_check not in offsprings:
+                offsprings.append(car_check)
+            i += 1
+
 
     # > num_survive cars finished
     else:
-        times = cars_time.copy()
-        times.sort()
-        best_times = times[:num_survive]
-        for time in best_times:
-            for i in np.where(cars_time == time)[0].tolist():
-                if num_survived < num_survive:
-                    offsprings.append(cars[i])
-                    num_survived += 1
-                    surviving.append(cars[i].return_name())
-                    cars.pop[i]
-                    cars_time = np.delete(car_time, i)
-                    car_dist = np.delete(car_dist, i)
-
+        passed_cars_time = [data for ind, data in enumerate(cars_time) if ind in passed]
+        times = sorted(passed_cars_time, key=lambda x: x[0])
+        for i in range(num_survive):
+            offsprings.append(times[i][1])
 
     num_to_make = total_cars - num_survive
-    dead_names = []
-    for name in all_names:
-        if name not in surviving:
-            dead_names.append(name)
     all_weights = []
+    for car in offsprings:
+        name_idx = dead_names.index(str(car.return_name()))
+        dead_names.pop(name_idx)
+        all_weights.append(car.return_weights())
+        car.increase_age()
+
     for car in cars:
         if car not in offsprings:
             del car
-    print(surviving)
-    print(dead_names)
-    for car in offsprings:
-        all_weights.append(car.return_weights())
-        car.increase_age()
 
     for i in range(num_to_make):
         parent = random.choice(all_weights)
@@ -450,7 +431,6 @@ def create_offsprings(cars, car_dist, cars_time, mr, num_survive):
         dead_names.remove(baby_name)
         baby_car = Car(baby_name, parent, sp, mr)
         offsprings.append(baby_car)
-
     return offsprings
 
 def get_car_age(cars):
@@ -460,7 +440,7 @@ def get_car_age(cars):
     return age_list
 
 gen = 1
-mutation_rate = 1
+mutation_rate = 1.5
 sim_data_dist = np.array([])
 sim_data_time = np.array([])
 
@@ -479,17 +459,24 @@ names = [
 
 car_list = []
 
+total_car_num = 0
+
 for name in names:
     new_car = Car(name, None, sp, mutation_rate)
     car_list.append(new_car)
+    total_car_num += 1
 
 zoom = True
+survive = 6
+
+age_list = get_car_age(car_list)
 
 while run:
     FPS = 60
     car_status = []
-    car_dist = np.array([])
-    car_time = np.array([])
+    all_car_dist = []
+    all_car_time = []
+    car_data = []
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -511,35 +498,88 @@ while run:
     if zoom:
         FPS = 0
 
-    age_list = get_car_age(car_list)
+    for car in car_list:
+        car_status.append(car.life_status())
+        all_car_dist.append((car.return_distance(), car))
+        all_car_time.append((car.return_time(), car))
 
-    update(WIN, images, gen, age_list)
+
+    old_cars = all_car_dist[:survive]
+    new_cars = all_car_dist[survive:]
+
+    new_car_status = []
+    for car in new_cars:
+        new_car_status.append(car[1].life_status())
+
+    worst_old = min(old_cars, key=lambda x: x[0])
+    try:
+        best_new = max(new_cars, key=lambda x: x[0])
+    except Exception as exc:
+        print(all_car_dist)
+        raise exc
+
+    sorted_car_data = sorted(all_car_dist, key=lambda x: x[0], reverse=True)
+
+    update(WIN, images, gen, age_list, sorted_car_data)
 
     for car in car_list:
         car.update(WIN, TRACK)
 
     pygame.display.flip()
+    only_dist = [data[0] for data in all_car_dist]
 
-    for car in car_list:
-        car_status.append(car.life_status())
-        car_dist = np.append(car_dist, (car.return_distance(),))
-        car_time = np.append(car_time, (car.return_time(),))
-
-
-    if -1 in car_dist:
+    if float('inf') in only_dist:
         time_since_first += 1
 
-    if (not any(car_status) and car_status != []) or time_since_first > 200:
+    if (not any(new_car_status)) and worst_old[0] > best_new[0] and gen != 1:
         gen += 1
-        top_3 = [x[1] for x in age_list[:3]]
-        old = [y for y in top_3 if y > 8]
-        if len(old) == 3:
-            car_list = create_offsprings(car_list, car_dist, car_time, mutation_rate, 3)
-        else:
-            car_list = create_offsprings(car_list, car_dist, car_time, mutation_rate, 6)
         time_since_first = 0
+
+        new_car_list = []
+        new_car_list = [car[1] for car in old_cars]
+        survivor_names = [car.return_name() for car in new_car_list]
+        num_to_make = total_car_num - survive
+        dead_names = []
+        for name in names:
+            if name not in survivor_names:
+                dead_names.append(name)
+        all_weights = []
+        for car in car_list:
+            if car not in new_car_list:
+                del car
+        for car in new_car_list:
+            all_weights.append(car.return_weights())
+            car.increase_age()
+
+        for i in range(num_to_make):
+            parent = random.choice(all_weights)
+            baby_name = random.choice(dead_names)
+            dead_names.remove(baby_name)
+            baby_car = Car(baby_name, parent, sp, mutation_rate)
+            new_car_list.append(baby_car)
+
+        car_list = new_car_list[:]
+        age_list = get_car_age(car_list)
+        top_3 = [x[1] for x in age_list[:4]]
+        old = [y for y in top_3 if y > 8]
+        if len(old) == 4:
+            mutation_rate = 2
+        else:
+            mutation_rate = 1.5
+
+    elif (not any(car_status) and car_status != []) or time_since_first > 200:
+        gen += 1
+
+        car_list = create_offsprings(car_list, all_car_dist, all_car_time, mutation_rate, survive)
+        time_since_first = 0
+        age_list = get_car_age(car_list)
+        top_3 = [x[1] for x in age_list[:4]]
+        old = [y for y in top_3 if y > 8]
+        if len(old) == 4:
+            mutation_rate = 2
+        else:
+            mutation_rate = 1.5
     clock.tick(FPS)
 
+print(sorted_car_data[0][1].return_weights())
 pygame.quit()
-print(sim_data_dist)
-print(sim_data_time)
