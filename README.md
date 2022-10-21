@@ -7,7 +7,7 @@ According to my knowledge, my algorithm is very similar to the NEAT algorithm, w
 
 Cars:
 
-Blue car: cars with age of at least 5, drawn by me!
+Blue car: cars with age of at least 5
 
 Green car: cars with age between 1 and 5
 
